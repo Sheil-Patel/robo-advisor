@@ -29,16 +29,21 @@ load_dotenv() #> loads contents of the .env file into the script's environment
 api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
 validation = True
 while validation == True:
-    symbol = input("please inpt ticker (e.g. XOM)")
+    symbol = input("Please input a stock ticker (e.g. MSFT)")
     ticker = symbol.upper()
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
-    print(response.text)
-    if "Error Message" in response.text:
-        print("OOPS! Could not find data for that ticker")
+    if (len(symbol) > 4):
+        print("OOPS! Length of Ticker above 4 letters")
         validation = True
-    else:
+    elif (symbol.isalpha() == False):
+        print("OOPS! You cannot have letters in a stock ticker")
+        validation = True
+    elif "Error Message" in response.text:
+        print("OOPS! Could not find data for that ticker(Most likely does not exist")
+        validation = True
+    elif True:
         print("Gathering Stock Data...")
         validation = False
 #---------------------------------------------------
@@ -110,7 +115,6 @@ with open(csv_file_path, "w") as csv_file: # "w" means "open the file for writin
 
 
 
-#breakpoint()
 
 #
 # INFO OUTPUTS
