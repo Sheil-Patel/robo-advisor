@@ -4,6 +4,7 @@ import csv
 import requests
 import json
 import os
+from dotenv import load_dotenv
 
 def to_usd(my_price):
     return "${0:,.2f}".format(my_price)
@@ -13,7 +14,12 @@ def to_usd(my_price):
 #
 
 #Import Data--------------------------
-request_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=5min&apikey=demo"
+
+load_dotenv() #> loads contents of the .env file into the script's environment
+
+symbol = "MSFT" #User input
+api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
+request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=5min&apikey={api_key}"
 response = requests.get(request_url)
 parsed_response = json.loads(response.text)
 #------------------------------
