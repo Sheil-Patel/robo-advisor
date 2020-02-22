@@ -27,16 +27,22 @@ latest_day = dates[0] #TODO: assumes first day is on top, but consider sorting t
 latest_close = ts5[latest_day]["4. close"]
 # ----------------------------------------
 
-#Recent High Price(Maximum of all the high prices)------------
+#Recent High Price(Maximum of all the high prices) &
+#Recent Low Price(Minimum of all the low prices)-----
 
 high_prices = []
+low_prices = []
 
 for date in dates:
     high_price = ts5[date]["2. high"]
+    low_price = ts5[date]["3. low"]
     high_prices.append(float(high_price))
+    low_prices.append(float(low_price))
 
 recent_high = max(high_prices)
+recent_low = min(low_prices)
 #--------------------------------
+
 
 #breakpoint()
 
@@ -61,7 +67,7 @@ print("-------------------------")
 print(f"LATEST DAY: {last_refreshed}")
 print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
 print(f"RECENT HIGH: {to_usd(float(recent_high))}")
-print("RECENT LOW: $99,000.00")
+print(f"RECENT LOW:{to_usd(float(recent_low))}")
 print("-------------------------")
 print("RECOMMENDATION: BUY!")
 print("RECOMMENDATION REASON: TODO")
