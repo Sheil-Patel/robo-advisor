@@ -10,20 +10,33 @@ def to_usd(my_price):
 # INFO INPUTS
 #
 
+#Import Data--------------------------
 request_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=5min&apikey=demo"
 response = requests.get(request_url)
 parsed_response = json.loads(response.text)
+#------------------------------
 
-
-
+# Last Refreshed Time
 last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
+# ---------------------------------------
 
+# Latest Close Price ---------------------
 ts5 = parsed_response["Time Series (5min)"]
 dates = list(ts5.keys())
 latest_day = dates[0] #TODO: assumes first day is on top, but consider sorting to ensure latest day is first
 latest_close = ts5[latest_day]["4. close"]
+# ----------------------------------------
 
+#Recent High Price(Maximum of all the high prices)------------
 
+high_prices = []
+
+for date in dates:
+    high_price = ts5[date]["2. high"]
+    high_prices.append(float(high_price))
+
+recent_high = max(high_prices)
+#--------------------------------
 
 #breakpoint()
 
@@ -47,7 +60,7 @@ print("REQUEST AT: 2018-02-20 02:00pm")
 print("-------------------------")
 print(f"LATEST DAY: {last_refreshed}")
 print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
-print("RECENT HIGH: $101,000.00")
+print(f"RECENT HIGH: {to_usd(float(recent_high))}")
 print("RECENT LOW: $99,000.00")
 print("-------------------------")
 print("RECOMMENDATION: BUY!")
