@@ -1,3 +1,34 @@
+#app/robo_advisor.py
+
+import requests
+
+
+
+
+#
+# INFO INPUTS
+#
+
+request_url = "______________________"
+
+response = requests.get(request_url)
+print(type(response))
+print(response.status_code)
+print(response.text)
+
+
+#
+# INFO OUTPUTS
+#
+
+
+
+
+
+
+
+
+
 print("-------------------------")
 print("SELECTED SYMBOL: XYZ")
 print("-------------------------")
