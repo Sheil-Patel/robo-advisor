@@ -11,17 +11,18 @@ def to_usd(my_price):
 #
 
 request_url = "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=5min&apikey=demo"
-
 response = requests.get(request_url)
-# print(type(response))
-# print(response.status_code)
-# print(response.text)
-
 parsed_response = json.loads(response.text)
+
+
 
 last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
 
-latest_close = parsed_response["Time Series (5min)"]["2020-02-21 16:00:00"]["4. close"]
+ts5 = parsed_response["Time Series (5min)"]
+dates = list(ts5.keys())
+latest_day = dates[0] #TODO: assumes first day is on top, but consider sorting to ensure latest day is first
+latest_close = ts5[latest_day]["4. close"]
+
 
 
 #breakpoint()
