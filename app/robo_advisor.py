@@ -5,9 +5,18 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
+from datetime import date
+from datetime import datetime
 
 def to_usd(my_price):
     return "${0:,.2f}".format(my_price)
+
+#Current Time---------------
+today = date.today()
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+d3 = today.strftime("%m/%d/%y")
+#------------------------------------
 
 #
 # INFO INPUTS
@@ -16,12 +25,26 @@ def to_usd(my_price):
 #Import Data--------------------------
 
 load_dotenv() #> loads contents of the .env file into the script's environment
-
-symbol = "MSFT" #User input
+#Validation for ticket Input--------------------------
 api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
-request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=5min&apikey={api_key}"
-response = requests.get(request_url)
-parsed_response = json.loads(response.text)
+validation = True
+while validation == True:
+    symbol = input("please inpt ticker (e.g. XOM)")
+    ticker = symbol.upper()
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=5min&apikey={api_key}"
+    response = requests.get(request_url)
+    parsed_response = json.loads(response.text)
+    print(response.text)
+    if "Error Message" in response.text:
+        print("OOPS! Could not find data for that ticker")
+        validation = True
+    else:
+        print("Gathering Stock Data...")
+        validation = False
+#---------------------------------------------------
+
+
+
 #------------------------------
 
 # Last Refreshed Time
@@ -41,15 +64,29 @@ latest_close = ts5[latest_day]["4. close"]
 high_prices = []
 low_prices = []
 
-for date in dates:
-    high_price = ts5[date]["2. high"]
-    low_price = ts5[date]["3. low"]
+for datez in dates:
+    high_price = ts5[datez]["2. high"]
+    low_price = ts5[datez]["3. low"]
     high_prices.append(float(high_price))
     low_prices.append(float(low_price))
 
 recent_high = max(high_prices)
 recent_low = min(low_prices)
 #--------------------------------
+#Reccomendation-----------------------------------
+if (float(latest_close) > (recent_high * 1.15)):
+    reccomendation = "SELL!"
+    reccomendation_reason = f"The latest closing price({to_usd(float(latest_close))}) is more than 15 percent above the recent high({to_usd(float(recent_high))}). This is an opportunistic time to SELL " 
+elif (float(latest_close) < (recent_low * 1.15)):
+    reccomendation = "BUY!"
+    reccomendation_reason = f"The latest closing price({to_usd(float(latest_close))}) is less than 15 percent above the recent low({to_usd(float(recent_low))}). This is an opportunistic time to BUY"
+elif True:
+    reccomendation = "HOLD!"
+    reccomendation_reason = "Does not satisfy requirements for BUY or SELL which were, respectively, the latest closing price is more than 15 percent above the recent high and the latest closing price is less than 15 percent above the recent low. There is no clear indication of any clear upside to selling or buying, so the best course of action is to HOLD"
+
+
+
+#-------------------------------------------------
 #Writing to CSV-----------------------------------------
 csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv")
 csv_headers = ["timestamp", "open", "high", "low", "close", "volume"]
@@ -58,10 +95,10 @@ csv_headers = ["timestamp", "open", "high", "low", "close", "volume"]
 with open(csv_file_path, "w") as csv_file: # "w" means "open the file for writing"
     writer = csv.DictWriter(csv_file, fieldnames=csv_headers)
     writer.writeheader() # uses fieldnames set above
-    for date in dates:
-        daily_prices = ts5[date]
+    for datez in dates:
+        daily_prices = ts5[datez]
         writer.writerow({
-            "timestamp": date,  
+            "timestamp": datez,  
             "open": daily_prices["1. open"], 
             "high": daily_prices["2. high"], 
             "low": daily_prices["3. low"], 
@@ -88,22 +125,18 @@ with open(csv_file_path, "w") as csv_file: # "w" means "open the file for writin
 
 
 print("-------------------------")
-print("SELECTED SYMBOL: XYZ")
+print(f"SELECTED SYMBOL: {symbol}")
 print("-------------------------")
 print("REQUESTING STOCK MARKET DATA...")
-print("REQUEST AT: 2018-02-20 02:00pm")
+print("REQUEST OCCURED ON: " + d3 + " at " + current_time)
 print("-------------------------")
 print(f"LATEST DAY: {last_refreshed}")
 print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
 print(f"RECENT HIGH: {to_usd(float(recent_high))}")
 print(f"RECENT LOW:{to_usd(float(recent_low))}")
 print("-------------------------")
-print("RECOMMENDATION: BUY!")
-print("RECOMMENDATION REASON: TODO")
+print(f"RECOMMENDATION: {reccomendation}")
+print(f"RECOMMENDATION REASON: {reccomendation_reason}")
 print("-------------------------")
-
-print(f"Writing Data to CSV: {csv_file_path}...")
-
-
 print("HAPPY INVESTING!")
 print("-------------------------")
