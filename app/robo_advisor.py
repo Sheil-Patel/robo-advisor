@@ -31,7 +31,7 @@ validation = True
 while validation == True:
     symbol = input("please inpt ticker (e.g. XOM)")
     ticker = symbol.upper()
-    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=5min&apikey={api_key}"
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
     print(response.text)
@@ -52,7 +52,7 @@ last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
 # ---------------------------------------
 
 # Latest Close Price ---------------------
-ts5 = parsed_response["Time Series (5min)"]
+ts5 = parsed_response["Time Series (Daily)"]
 dates = list(ts5.keys())
 latest_day = dates[0] #TODO: assumes first day is on top, but consider sorting to ensure latest day is first
 latest_close = ts5[latest_day]["4. close"]
