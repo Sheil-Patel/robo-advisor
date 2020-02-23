@@ -1,5 +1,5 @@
 # Robo-advisor 
-Hello Welcome to my robo-advisor program! In this program you will input a stock ticker(no longer than 6 characters and lower/uppercase does not matter) and it will output key stock metrics and give you a decision whether to buy, hold, or sell the selected stock.
+Hello Welcome to my robo-advisor program! In this program you will input a stock ticker(no longer than 6 characters and lower/uppercase does not matter) and it will output key stock metrics(52 Week High/Low , latest closing price, recent high price, and recent low price). It will also give you a decision whether to buy, hold, or sell the selected stock.
 
 ## Prerequisites
 

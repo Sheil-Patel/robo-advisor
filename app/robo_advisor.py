@@ -50,9 +50,26 @@ while validation == True:
         print("Gathering Stock Data...")
         validation = False
 #---------------------------------------------------
+#52 week high
+weeks_high = []
+weeks_low = []
 
-
-
+request_url2 = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
+response2 = requests.get(request_url2)
+parsed_response2 = json.loads(response2.text)
+ts52 = parsed_response2["Time Series (Daily)"]
+dates2 = list(ts52.keys())
+x = 0
+for datez2 in dates2:
+    week_high = ts52[datez2]["2. high"]
+    week_low = ts52[datez2]["3. low"]
+    weeks_high.append(float(week_high))
+    weeks_low.append(float(week_low))
+    x += 1
+    if x == 360:
+        break
+recent_52high = max(weeks_high)
+recent_52low = min(weeks_low)
 #------------------------------
 
 # Last Refreshed Time
@@ -141,6 +158,8 @@ print(f"LATEST DAY: {last_refreshed}")
 print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
 print(f"RECENT HIGH: {to_usd(float(recent_high))}")
 print(f"RECENT LOW:{to_usd(float(recent_low))}")
+print(f"52 WEEK HIGH:{to_usd(float(recent_52high))}")
+print(f"52 WEEK LOW:{to_usd(float(recent_52low))}")
 print("-------------------------")
 print(f"RECOMMENDATION: {reccomendation}")
 print(f"RECOMMENDATION REASON: {reccomendation_reason}")
