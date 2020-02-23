@@ -1,5 +1,5 @@
 # Robo-advisor 
-Hello Welcome to my robo-advisor program! In this program you will input a stock ticker(no longer than 6 characters and lower/uppercase does not matter) and it will output key stock metrics(52 Week High/Low , latest closing price, recent high price, and recent low price). It will also give you a decision whether to buy, hold, or sell the selected stock.
+Hello Welcome to my robo-advisor program! In this program you will input a stock ticker(no longer than 6 characters and lower/uppercase does not matter) and it will output key stock metrics(52 Week High/Low , latest closing price, recent high price, and recent low price). It will also give you a decision whether to buy, hold, or sell the selected stock. Additionally if the stock has moved up or down more than 5% within the past day, it will send you an SMS. 
 
 ## Prerequisites
 
@@ -36,12 +36,26 @@ pip install -r requirements.txt
 > NOTE: if this command throws an error like "Could not open requirements file: [Errno 2] No such file or directory", make sure you are running it from the repository's root directory, where the requirements.txt file exists (see the initial `cd` step above)
 
 ### API key setup
+
+## AlphaVantage API
 Your program will need an API Key to issue requests to the AlphaVantage API
 
 Create a .env file located in cd ~/Desktop/robo-advisor and insert your own API key like the example below
 
 ```sh
 ALPHAVANTAGE_API_KEY="abc123"
+```
+## Twilio SMS API
+Additionally your program will need to have Twilio API keys put into the .env files. Examples of that code can be seen below
+
+```sh
+TWILIO_ACCOUNT_SID = "abc123"
+TWILIO_AUTH_TOKEN = "abc123"
+```
+Additionally you will need to put in Sender and Receiver phone numbers
+```sh
+SENDER_SMS = "1112223333"
+RECIPIENT_SMS = "1112223333"
 ```
 
 ## Running the program

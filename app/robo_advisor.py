@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from datetime import date
 from datetime import datetime
+from twilio.rest import Client
 
 def to_usd(my_price):
     return "${0:,.2f}".format(my_price)
@@ -22,11 +23,17 @@ d3 = today.strftime("%m/%d/%y")
 # INFO INPUTS
 #
 
-#Import Data--------------------------
+#Import Data from API--------------------------
 
 load_dotenv() #> loads contents of the .env file into the script's environment
-#Validation for ticket Input--------------------------
 api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "OOPS, please specify env var called 'TWILIO_ACCOUNT_SID'")
+TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "OOPS, please specify env var called 'TWILIO_AUTH_TOKEN'")
+SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
+RECIPIENT_SMS  = os.environ.get("RECIPIENT_SMS", "OOPS, please specify env var called 'RECIPIENT_SMS'")
+
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+#Validation for ticker Input--------------------------
 validation = True
 while validation == True:
     symbol = input("Please input a stock ticker (e.g. MSFT)")
@@ -76,11 +83,13 @@ recent_52low = min(weeks_low)
 last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
 # ---------------------------------------
 
-# Latest Close Price ---------------------
+# Latest Close Price and day before close ---------------------
 ts5 = parsed_response["Time Series (Daily)"]
 dates = list(ts5.keys())
-latest_day = dates[0] #TODO: assumes first day is on top, but consider sorting to ensure latest day is first
+latest_day = dates[0] 
+yester_day = dates[1]
 latest_close = ts5[latest_day]["4. close"]
+yesterday_close = ts5[yester_day]["4. close"]
 # ----------------------------------------
 
 #Recent High Price(Maximum of all the high prices) &
@@ -143,11 +152,7 @@ with open(csv_file_path, "w") as csv_file: # "w" means "open the file for writin
 
 
 
-
-
-
-
-
+#Program Outputs
 print("-------------------------")
 print(f"SELECTED SYMBOL: {symbol}")
 print("-------------------------")
@@ -166,3 +171,17 @@ print(f"RECOMMENDATION REASON: {reccomendation_reason}")
 print("-------------------------")
 print("HAPPY INVESTING!")
 print("-------------------------")
+
+# Text Message output
+sendit = False
+if (float(latest_close)/float(yesterday_close) >= 1.05):
+    content = f"ALERT: The price of {symbol.upper()} has increased by more than 5% within the past day"
+    sendit = True
+if (float(latest_close)/float(yesterday_close) <= .95):
+    content = f"ALERT: The price of {symbol.upper()} has decreased by more than 5% within the past day"
+    sendit = True
+if sendit == True:
+    message = client.messages.create(to=RECIPIENT_SMS, from_=SENDER_SMS, body=content)
+
+
+
