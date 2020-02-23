@@ -35,16 +35,16 @@ while validation == True:
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
     if (len(symbol) > 6):
-        print("OOPS! Length of Ticker above 4 letters")
+        print("OOPS! Length of Ticker above 4 characters")
         validation = True
     elif (len(symbol) < 1):
         print("OOPS! Please input at least 1 character")
         validation = True
     elif (symbol.isalpha() == False):
-        print("OOPS! You cannot have letters in a stock ticker")
+        print("OOPS! You cannot have numbers in a stock ticker")
         validation = True
     elif "Error Message" in response.text:
-        print("OOPS! Could not find data for that ticker(Most likely does not exist")
+        print("OOPS! Could not find data for that ticker(Most likely does not exist)")
         validation = True
     elif True:
         print("Gathering Stock Data...")

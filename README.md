@@ -1,5 +1,5 @@
 # Robo-advisor 
-Hello Welcome to my robo-advisor program! In this program you will input a stock ticker(no longer than 6 characters) and it will output key stock metrics and give you a decision whether to buy, hold, or sell the selected stock.
+Hello Welcome to my robo-advisor program! In this program you will input a stock ticker(no longer than 6 characters and lower/uppercase does not matter) and it will output key stock metrics and give you a decision whether to buy, hold, or sell the selected stock.
 
 ## Prerequisites
 
@@ -36,8 +36,9 @@ pip install -r requirements.txt
 > NOTE: if this command throws an error like "Could not open requirements file: [Errno 2] No such file or directory", make sure you are running it from the repository's root directory, where the requirements.txt file exists (see the initial `cd` step above)
 
 ### API key setup
+Your program will need an API Key to issue requests to the AlphaVantage API
 
-In the .env file located in Desktop/robo-advisor, insert your own API key like the example below
+Create a .env file located in cd ~/Desktop/robo-advisor and insert your own API key like the example below
 
 ```sh
 ALPHAVANTAGE_API_KEY="abc123"
