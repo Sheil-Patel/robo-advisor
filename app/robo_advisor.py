@@ -34,8 +34,11 @@ while validation == True:
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
-    if (len(symbol) > 4):
+    if (len(symbol) > 6):
         print("OOPS! Length of Ticker above 4 letters")
+        validation = True
+    elif (len(symbol) < 1):
+        print("OOPS! Please input at least 1 character")
         validation = True
     elif (symbol.isalpha() == False):
         print("OOPS! You cannot have letters in a stock ticker")
