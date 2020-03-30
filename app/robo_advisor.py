@@ -5,9 +5,17 @@ import requests
 import json
 import os
 from dotenv import load_dotenv
-from datetime import date
 from datetime import datetime
 from twilio.rest import Client
+#Import Data from API--------------------------
+    
+load_dotenv() #> loads contents of the .env file into the script's environment
+api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "OOPS, please specify env var called 'TWILIO_ACCOUNT_SID'")
+TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "OOPS, please specify env var called 'TWILIO_AUTH_TOKEN'")
+SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
+RECIPIENT_SMS  = os.environ.get("RECIPIENT_SMS", "OOPS, please specify env var called 'RECIPIENT_SMS'")
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 def to_usd(my_price):
     """
@@ -54,36 +62,12 @@ def write_to_csv(dates, csv_file_path):
 
     return True
 
-if __name__ == "__main__":
-    #Current Time---------------
-    today = date.today()
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    d3 = today.strftime("%m/%d/%y")
-    #------------------------------------
-    
-    #
-    # INFO INPUTS
-    #
-    
-    #Import Data from API--------------------------
-    
-    load_dotenv() #> loads contents of the .env file into the script's environment
-    api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
-    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "OOPS, please specify env var called 'TWILIO_ACCOUNT_SID'")
-    TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "OOPS, please specify env var called 'TWILIO_AUTH_TOKEN'")
-    SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
-    RECIPIENT_SMS  = os.environ.get("RECIPIENT_SMS", "OOPS, please specify env var called 'RECIPIENT_SMS'")
-    
-    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-    #Validation for ticker Input--------------------------
+def get_response(symbol):
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
+    response = requests.get(request_url)
+    parsed_response = json.loads(response.text)
     validation = True
     while validation == True:
-        symbol = input("Please input a stock ticker (e.g. MSFT)")
-        ticker = symbol.upper()
-        request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
-        response = requests.get(request_url)
-        parsed_response = json.loads(response.text)
         if (len(symbol) > 6):
             print("OOPS! Length of Ticker above 4 characters")
             validation = True
@@ -99,6 +83,46 @@ if __name__ == "__main__":
         elif True:
             print("Gathering Stock Data...")
             validation = False
+    return parsed_response
+def transform_response(parsed_response):
+    # parsed_response should be a dictionary representing the original JSON response
+    # it should have keys: "Meta Data" and "Time Series Daily"
+    tsd = parsed_response["Time Series (Daily)"]
+
+    dates = []
+    for date, daily_prices in tsd: # see: https://github.com/prof-rossetti/georgetown-opim-243-201901/blob/master/notes/python/datatypes/dictionaries.md
+        datez = {
+            "timestamp": date,
+            "open": float(daily_prices["1. open"]),
+            "high": float(daily_prices["2. high"]),
+            "low": float(daily_prices["3. low"]),
+            "close": float(daily_prices["4. close"]),
+            "volume": int(daily_prices["5. volume"])
+        }
+        dates.append(datez)
+
+    return dates
+
+if __name__ == "__main__":
+    #Current Time---------------
+    today = datetime.today()
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    d3 = today.strftime("%m/%d/%y")
+    #------------------------------------
+    
+    #
+    # INFO INPUTS
+    #
+    
+    
+    
+    
+    #Validation for ticker Input--------------------------
+    symbol = input("Please input a stock ticker (e.g. MSFT)")
+    ticker = symbol.upper()
+    parsed_response = get_response(ticker)
+        
     #---------------------------------------------------
     #52 week high
     weeks_high = []
