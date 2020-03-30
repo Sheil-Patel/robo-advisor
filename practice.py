@@ -53,8 +53,25 @@ def transform_response(parsed_response):
         dates.append(datez)
 
     return dates
+def get_52_week_high(dates):
+    #52 week high
+    weeks_high = []
+    x = 0
+    for datez in dates:
+        week_high = datez["high"]
+        weeks_high.append(float(week_high))
+        x += 1
+        if x == 360:
+            break
+    recent_52high = max(weeks_high)
+    return recent_52high
+
+
+#Functions
 symbol = input("Please input a stock ticker (e.g. MSFT)")
 ticker = symbol.upper()
 parsed_response = get_response(symbol)
 dates = transform_response(parsed_response)
+hello = get_52_week_high(dates)
+print(hello)
 breakpoint()
