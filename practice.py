@@ -35,43 +35,56 @@ def get_response(symbol):
             print("Gathering Stock Data...")
             validation = False
     return parsed_response
-def transform_response(parsed_response):
-    # parsed_response should be a dictionary representing the original JSON response
-    # it should have keys: "Meta Data" and "Time Series Daily"
-    tsd = parsed_response["Time Series (Daily)"]
-
-    dates = []
-    for date, daily_prices in tsd.items(): # see: https://github.com/prof-rossetti/georgetown-opim-243-201901/blob/master/notes/python/datatypes/dictionaries.md
-        datez = {
-            "timestamp": date,
-            "open": float(daily_prices["1. open"]),
-            "high": float(daily_prices["2. high"]),
-            "low": float(daily_prices["3. low"]),
-            "close": float(daily_prices["4. close"]),
-            "volume": int(daily_prices["5. volume"])
-        }
-        dates.append(datez)
-
-    return dates
-def get_52_week_high(dates):
-    #52 week high
-    weeks_high = []
-    x = 0
-    for datez in dates:
-        week_high = datez["high"]
-        weeks_high.append(float(week_high))
-        x += 1
-        if x == 360:
-            break
-    recent_52high = max(weeks_high)
-    return recent_52high
-
-
+#def transform_response(parsed_response):
+#    # parsed_response should be a dictionary representing the original JSON response
+#    # it should have keys: "Meta Data" and "Time Series Daily"
+#    tsd = parsed_response["Time Series (Daily)"]
+#
+#    dates = []
+#    for date, daily_prices in tsd.items(): # see: https://github.com/prof-rossetti/georgetown-opim-243-201901/blob/master/notes/python/datatypes/dictionaries.md
+#        datez = {
+#            "timestamp": date,
+#            "open": float(daily_prices["1. open"]),
+#            "high": float(daily_prices["2. high"]),
+#            "low": float(daily_prices["3. low"]),
+#            "close": float(daily_prices["4. close"]),
+#            "volume": int(daily_prices["5. volume"])
+#        }
+#        dates.append(datez)
+#
+#    return dates
 #Functions
 symbol = input("Please input a stock ticker (e.g. MSFT)")
 ticker = symbol.upper()
 parsed_response = get_response(symbol)
-dates = transform_response(parsed_response)
-hello = get_52_week_high(dates)
-print(hello)
+#dates = transform_response(parsed_response)
+#######################
+tsd = parsed_response["Time Series (Daily)"]
+
+dates = []
+for date, daily_prices in tsd.items(): # see: https://github.com/prof-rossetti/georgetown-opim-243-201901/blob/master/notes/python/datatypes/dictionaries.md
+    datez = {
+        "timestamp": date,
+        "open": float(daily_prices["1. open"]),
+        "high": float(daily_prices["2. high"]),
+        "low": float(daily_prices["3. low"]),
+        "close": float(daily_prices["4. close"]),
+        "volume": int(daily_prices["5. volume"])
+    }
+    dates.append(datez)
+
+###############################################
+weeks_high = []
+x = 0
+for datez in dates:
+    week_high = datez["high"]
+    weeks_high.append(float(week_high))
+    x += 1
+    if x == 360:
+        break
+recent_52high = max(weeks_high)
+
+print(recent_52high)
 breakpoint()
+#hello = get_52_week_high(dates)
+#print(hello)
