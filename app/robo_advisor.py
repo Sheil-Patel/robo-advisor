@@ -90,7 +90,7 @@ def transform_response(parsed_response):
     tsd = parsed_response["Time Series (Daily)"]
 
     dates = []
-    for date, daily_prices in tsd: # see: https://github.com/prof-rossetti/georgetown-opim-243-201901/blob/master/notes/python/datatypes/dictionaries.md
+    for date, daily_prices in tsd.items(): # see: https://github.com/prof-rossetti/georgetown-opim-243-201901/blob/master/notes/python/datatypes/dictionaries.md
         datez = {
             "timestamp": date,
             "open": float(daily_prices["1. open"]),
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     symbol = input("Please input a stock ticker (e.g. MSFT)")
     ticker = symbol.upper()
     parsed_response = get_response(ticker)
-        
+    dates = transform_response(parsed_response)
     #---------------------------------------------------
     #52 week high
     weeks_high = []
