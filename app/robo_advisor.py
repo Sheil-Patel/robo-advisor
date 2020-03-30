@@ -7,6 +7,8 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 from twilio.rest import Client
+
+
 #Import Data from API--------------------------
     
 load_dotenv() #> loads contents of the .env file into the script's environment
@@ -31,7 +33,6 @@ def to_usd(my_price):
         to_usd(123456789.5555) == "$123,456,789.56" # should display thousand separators
     """
     return f"${my_price:,.2f}" #> $12,000.71
-
 def write_to_csv(dates, csv_file_path):
 
     """
@@ -43,25 +44,18 @@ def write_to_csv(dates, csv_file_path):
     Examples:
         write_to_csv(dates, csv_file_path)
     """
+    # rows should be a list of dictionaries
+    # csv_filepath should be a string filepath pointing to where the data should be written
 
     csv_headers = ["timestamp", "open", "high", "low", "close", "volume"]
 
-    with open(csv_file_path, "w") as csv_file: # "w" means "open the file for writing"
+    with open(csv_file_path, "w") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=csv_headers)
         writer.writeheader() # uses fieldnames set above
         for datez in dates:
-            daily_prices = ts5[datez]
-            writer.writerow({
-                "timestamp": datez,  
-                "open": daily_prices["1. open"], 
-                "high": daily_prices["2. high"], 
-                "low": daily_prices["3. low"], 
-                "close": daily_prices["4. close"], 
-                "volume": daily_prices["5. volume"]
-            })
+            writer.writerow(datez)
 
     return True
-
 def get_response(symbol):
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
     response = requests.get(request_url)
@@ -102,6 +96,56 @@ def transform_response(parsed_response):
         dates.append(datez)
 
     return dates
+def get_latest_close(dates):
+    latest_close = dates[0]["close"]
+    return latest_close
+def get_yesterday_close(dates):
+    yesterday_close = dates[1]["close"]
+    return yesterday_close
+def get_last_refreshed(parsed_response):
+    last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
+    return last_refreshed
+def get_recent_high(dates):
+    high_prices = []
+    for datez in dates:
+        high_price = datez["high"]
+        high_prices.append(float(high_price))
+        
+    
+    recent_high = max(high_prices)
+    
+    return recent_high
+    #-----------------------------
+def get_recent_low(dates):
+    low_prices = []
+    for datez in dates:
+        low_price = datez["low"]
+        low_prices.append(float(low_price))
+    recent_low = min(low_prices)
+    return recent_low
+def get_52_week_high(dates):
+    #52 week high
+    weeks_high = []
+    x = 0
+    for datez in dates:
+        week_high = datez["high"]
+        weeks_high.append(float(week_high))
+        x += 1
+        if x == 360:
+            break
+    recent_52high = max(weeks_high)
+    return recent_52high
+def get_52_week_low(dates):
+    weeks_low = []
+    x = 0
+    for datez in dates:
+        week_low = datez["low"]
+        weeks_low.append(float(week_low))
+        x += 1
+        if x == 360:
+            break
+    recent_52low = min(weeks_low)
+    return recent_52low
 
 if __name__ == "__main__":
     #Current Time---------------
@@ -115,65 +159,39 @@ if __name__ == "__main__":
     # INFO INPUTS
     #
     
+    #Writing to CSV-----------------------------------------
+    
+   
+    csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv")
     
     
-    
-    #Validation for ticker Input--------------------------
+    #Function Calls-------------------------------------------------------
     symbol = input("Please input a stock ticker (e.g. MSFT)")
     ticker = symbol.upper()
     parsed_response = get_response(ticker)
     dates = transform_response(parsed_response)
+    latest_close = get_latest_close(dates)
+    yesterday_close = get_yesterday_close(dates)
+    last_refreshed = get_last_refreshed(parsed_response)
+    recent_high = get_recent_high(dates)
+    recent_low = get_recent_low(dates)
+    recent_52high = get_52_week_high(dates)
+    recent_52low = get_52_week_low(dates)
+    write_to_csv(dates, csv_file_path)
+    breakpoint()
     #---------------------------------------------------
-    #52 week high
-    weeks_high = []
-    weeks_low = []
     
-    request_url2 = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
-    response2 = requests.get(request_url2)
-    parsed_response2 = json.loads(response2.text)
-    ts52 = parsed_response2["Time Series (Daily)"]
-    dates2 = list(ts52.keys())
-    x = 0
-    for datez2 in dates2:
-        week_high = ts52[datez2]["2. high"]
-        week_low = ts52[datez2]["3. low"]
-        weeks_high.append(float(week_high))
-        weeks_low.append(float(week_low))
-        x += 1
-        if x == 360:
-            break
-    recent_52high = max(weeks_high)
-    recent_52low = min(weeks_low)
     #------------------------------
     
-    # Last Refreshed Time
-    last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
+ 
     # ---------------------------------------
     
-    # Latest Close Price and day before close ---------------------
-    ts5 = parsed_response["Time Series (Daily)"]
-    dates = list(ts5.keys())
-    latest_day = dates[0] 
-    yester_day = dates[1]
-    latest_close = ts5[latest_day]["4. close"]
-    yesterday_close = ts5[yester_day]["4. close"]
+
     # ----------------------------------------
     
     #Recent High Price(Maximum of all the high prices) &
     #Recent Low Price(Minimum of all the low prices)-----
     
-    high_prices = []
-    low_prices = []
-    
-    for datez in dates:
-        high_price = ts5[datez]["2. high"]
-        low_price = ts5[datez]["3. low"]
-        high_prices.append(float(high_price))
-        low_prices.append(float(low_price))
-    
-    recent_high = max(high_prices)
-    recent_low = min(low_prices)
-    #--------------------------------
     #Reccomendation-----------------------------------
     if (float(latest_close) > (recent_high * 1.15)):
         reccomendation = "SELL!"
@@ -188,9 +206,7 @@ if __name__ == "__main__":
     
     
     #-------------------------------------------------
-    #Writing to CSV-----------------------------------------
-    csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv")
-    write_to_csv(dates, csv_file_path)
+ 
     #----------------------------------------------------------
     
     
@@ -205,12 +221,12 @@ if __name__ == "__main__":
     
     #Program Outputs
     print("-------------------------")
-    print(f"SELECTED SYMBOL: {symbol}")
+    print(f"SELECTED SYMBOL: {symbol}")#
     print("-------------------------")
     print("REQUESTING STOCK MARKET DATA...")
-    print("REQUEST OCCURED ON: " + d3 + " at " + current_time)
+    print("REQUEST OCCURED ON: " + d3 + " at " + current_time)#
     print("-------------------------")
-    print(f"LATEST DAY: {last_refreshed}")
+    print(f"LATEST DAY: {last_refreshed}")#
     print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
     print(f"RECENT HIGH: {to_usd(float(recent_high))}")
     print(f"RECENT LOW:{to_usd(float(recent_low))}")

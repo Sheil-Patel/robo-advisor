@@ -15,6 +15,7 @@ def test_get_response():
     assert "Meta Data" in parsed_response.keys()
     assert "Time Series (Daily)" in parsed_response.keys()
     assert parsed_response["Meta Data"]["2. Symbol"] == symbol
+
 #def test_transform_response():
 #    parsed_response = {
 #        "Meta Data": {
