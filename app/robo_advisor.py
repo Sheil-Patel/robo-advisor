@@ -145,7 +145,6 @@ if __name__ == "__main__":
     recent_52high = max(weeks_high)
     recent_52low = min(weeks_low)
     #------------------------------
-    
     # Last Refreshed Time
     last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
     # ---------------------------------------
