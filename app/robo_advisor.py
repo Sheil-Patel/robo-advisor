@@ -14,6 +14,7 @@ from twilio.rest import Client
 load_dotenv() #> loads contents of the .env file into the script's environment
 api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
 
+
 def to_usd(my_price):
     """
     Takes a float or int and converts it into a string showing a proper numerical dollar amount.
