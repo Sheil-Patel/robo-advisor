@@ -227,6 +227,7 @@ def get_52_week_low(symbol):
     dates = list(tsd.keys())
     x = 0
     weeks_low = []
+
     for datez in dates:
         week_low = tsd[datez]["3. low"]
         weeks_low.append(float(week_low))
@@ -316,6 +317,7 @@ def receipt_footer():
     print("-------------------------")
     print("HAPPY INVESTING!")
     print("-------------------------")
+
 def send_text(latest_close,yesterday_close):
     """
     Takes the latest close price and yesterdays close price and uses that to determine if a message text message needs to be sent.
@@ -332,6 +334,7 @@ def send_text(latest_close,yesterday_close):
     SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
     RECIPIENT_SMS  = os.environ.get("RECIPIENT_SMS", "OOPS, please specify env var called 'RECIPIENT_SMS'")
     client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
     sendit = False
     if (float(latest_close)/float(yesterday_close) >= 1.05):
         content = f"ALERT: The price of {symbol.upper()} has increased by more than 5% within the past day"
