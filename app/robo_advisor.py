@@ -221,7 +221,6 @@ if __name__ == "__main__":
     print("-------------------------")
     print("HAPPY INVESTING!")
     print("-------------------------")
-    
     # Text Message output
     sendit = False
     if (float(latest_close)/float(yesterday_close) >= 1.05):
