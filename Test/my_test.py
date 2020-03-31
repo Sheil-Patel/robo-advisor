@@ -82,4 +82,5 @@ def test_write_to_csv():
     
     assert result == True 
     assert os.path.isfile(csv_file_path) == True #Checks if a .csv file was created at the location of the csv_file_path
+    
     # TODO: consider also testing the file contents!
