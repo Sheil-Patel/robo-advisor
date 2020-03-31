@@ -113,15 +113,51 @@ def transform_response(parsed_response):
 
     return dates
 def get_latest_close(dates):
+    """
+    Takes a list of dictionaries with stock information and returns the latest close price
+
+    Params:
+        dates (list of dictionaries with stock data)
+
+    Examples:
+        get_latest_close(dates) #>returns close price as float
+    """
     latest_close = dates[0]["close"]
     return latest_close
 def get_yesterday_close(dates):
+    """
+    Takes a list of dictionaries with stock information and returns yesterday's closing price
+
+    Params:
+        dates (list of dictionaries with stock data)
+
+    Examples:
+        get_yesterday_close(dates) #>returns yesterday's closing price as float
+    """
     yesterday_close = dates[1]["close"]
     return yesterday_close
 def get_last_refreshed(parsed_response):
+    """
+    Takes a parsed_response from the get_response() function and returns the date of the latest day of stock information
+
+    Params:
+        parsed_response (dictionary datatype)
+
+    Examples:
+        get_last_refreshed(parsed_response) #>returns the last refreshed date as a string
+    """
     last_refreshed = parsed_response["Meta Data"]["3. Last Refreshed"]
     return last_refreshed
 def get_recent_high(dates):
+    """
+    Takes a list of dictionaries with stock information and returns the recent high price for the stock
+
+    Params:
+        dates (list of dictionaries with stock data)
+
+    Examples:
+        get_recent_high(dates) #>returns recent high price as a float
+    """
     high_prices = []
     for datez in dates:
         high_price = datez["high"]
@@ -133,6 +169,15 @@ def get_recent_high(dates):
     return recent_high
     #-----------------------------
 def get_recent_low(dates):
+    """
+    Takes a list of dictionaries with stock information and returns the recent low price for the stock
+
+    Params:
+        dates (list of dictionaries with stock data)
+
+    Examples:
+        get_recent_low(dates) #>returns recent low price as a float
+    """
     low_prices = []
     for datez in dates:
         low_price = datez["low"]
@@ -140,6 +185,15 @@ def get_recent_low(dates):
     recent_low = min(low_prices)
     return recent_low
 def get_52_week_high(symbol):
+    """
+    Takes the stock ticker returns the 52 week high price for the stock
+
+    Params:
+        symbol (string)
+
+    Examples:
+        get_52_week_high(dates) #>returns 52 week high price as a float
+    """
     #52 week high
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
     response = requests.get(request_url)
@@ -156,7 +210,16 @@ def get_52_week_high(symbol):
             break
     recent_52high = max(weeks_high)
     return recent_52high
-def get_52_week_low(dates):
+def get_52_week_low(symbol):
+    """
+    Takes the stock ticker and returns the 52 week low price for the stock
+
+    Params:
+        symbol (string)
+
+    Examples:
+        get_52_low_high(dates) #>returns 52 week low price as a float
+    """
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
@@ -173,12 +236,30 @@ def get_52_week_low(dates):
     recent_52low = min(weeks_low)
     return recent_52low
 def display_time():
+    """
+    Takes the current time and outputs it in a human friendly way
+
+    Params:
+        N/A
+
+    Examples:
+        display_time() #> Will print current time. e.g. "REQUEST OCCURED ON: 03/31/20 at 14:00:36"
+    """
     today = datetime.today()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     d3 = today.strftime("%m/%d/%y")
     print("REQUEST OCCURED ON: " + d3 + " at " + current_time)
 def get_reccomendation(latest_close,recent_high,recent_low):
+    """
+    Takes the latest close price, recent high price, recent low price and prints the correct reccomendation(BUY , HOLD , or SELL) for the stock as well as a reccomendation reason
+
+    Params:
+        latest_close (float) , recent_high (float) , recent_low (float)
+
+    Examples:
+        get_reccomendation(latest_close,recent_high,recent_low) #> prints reccomendation (string) and a reccomendation reason (string)
+    """
     if (float(latest_close) > (recent_high * 1.15)):
         reccomendation = "SELL!"
         reccomendation_reason = f"The latest closing price({to_usd(float(latest_close))}) is more than 15 percent above the recent high({to_usd(float(recent_high))}). This is an opportunistic time to SELL " 
@@ -191,11 +272,29 @@ def get_reccomendation(latest_close,recent_high,recent_low):
     print(f"RECOMMENDATION: {reccomendation}")
     print(f"RECOMMENDATION REASON: {reccomendation_reason}")
 def receipt_header(symbol):
+    """
+    Takes the stock ticker and uses that information to print the header for the receipt
+
+    Params:
+        symbol (string)
+
+    Examples:
+        receipt_header(symbol) #> prints the header for the receipt
+    """
     print("-------------------------")
     print(f"SELECTED SYMBOL: {symbol}")
     print("-------------------------")
     print("REQUESTING STOCK MARKET DATA...")
 def receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52high,recent_52low):
+    """
+    Takes the last refreshed date, latest close price, recent and 52 week high price, recent and 52 week low price and prints a formatted receipt body
+
+    Params:
+        last_refreshed (string), latest_close (float) ,recent_high (float) ,  recent_low (float), recent_52high (float), recent_52low (float)
+
+    Examples:
+        receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52high,recent_52low) #> prints the receipt body
+    """
     print("-------------------------")
     print(f"LATEST DAY: {last_refreshed}")
     print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
@@ -205,10 +304,29 @@ def receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52h
     print(f"52 WEEK LOW:{to_usd(float(recent_52low))}")
     print("-------------------------")
 def receipt_footer():
+    """
+    Prints the receipt footer
+
+    Params:
+        N/A
+
+    Examples:
+        receipt_footer() #> prints the footer for the receipt
+    """
     print("-------------------------")
     print("HAPPY INVESTING!")
     print("-------------------------")
 def send_text(latest_close,yesterday_close):
+    """
+    Takes the latest close price and yesterdays close price and uses that to determine if a message text message needs to be sent.
+    A text message will send if the stock has increased or decreased by more than 5% within the past day
+
+    Params:
+        latest_close (float) , yesterday_close (float)
+
+    Examples:
+        send_text(latest_close,yesterday_close) #> sends text message if parameters are satisfied
+    """
     TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "OOPS, please specify env var called 'TWILIO_ACCOUNT_SID'")
     TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "OOPS, please specify env var called 'TWILIO_AUTH_TOKEN'")
     SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
@@ -225,30 +343,32 @@ def send_text(latest_close,yesterday_close):
         message = client.messages.create(to=RECIPIENT_SMS, from_=SENDER_SMS, body=content)
 if __name__ == "__main__":
     #Writing to CSV-----------------------------------------
-    csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv")
+    csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv") #Filepath to .csv file
+
     #Function Calls for calculations-------------------------------------------------------
-    symbol = input("Please input a stock ticker (e.g. MSFT)")
-    ticker = symbol.upper()
-    parsed_response = get_response(ticker)
-    dates = transform_response(parsed_response)
-    latest_close = get_latest_close(dates)
-    yesterday_close = get_yesterday_close(dates)
+    symbol = input("Please input a stock ticker (e.g. MSFT)") #Input Stock Ticker
+    ticker = symbol.upper() #Makes sure upper case stock ticker
+    parsed_response = get_response(ticker) #Returns data for stock ticker
+    dates = transform_response(parsed_response) #Transforms data from stock ticker into user friendly format
+
+    latest_close = get_latest_close(dates) #Returns Latest closing price
+    yesterday_close = get_yesterday_close(dates) #Returns yesterdays closing price
     last_refreshed = get_last_refreshed(parsed_response)
-    recent_high = get_recent_high(dates)
-    recent_low = get_recent_low(dates)
-    recent_52high = get_52_week_high(symbol)
-    recent_52low = get_52_week_low(symbol)
-    write_to_csv(dates, csv_file_path)
+    recent_high = get_recent_high(dates) #Returns recent high pricce
+    recent_low = get_recent_low(dates) #Returns recent low price
+    recent_52high = get_52_week_high(symbol) #Returns 52 week high price
+    recent_52low = get_52_week_low(symbol) #Returns 52 week low price
+
+    write_to_csv(dates, csv_file_path) #Write stock data to a .csv file
 
     #Program Outputs(Receipt)
-    receipt_header(symbol)
-    display_time()
-    receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52high,recent_52low)
-    get_reccomendation(latest_close,recent_high,recent_low)
-    receipt_footer()
+    receipt_header(symbol) #Print receipt header
+    display_time() #Print timestamp
+    receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52high,recent_52low) #Prints receipt body with most of information
+    get_reccomendation(latest_close,recent_high,recent_low) #Prints stock reccomendation(BUY, SELL, HOLD)
+    receipt_footer() #Prints receipt footer
 
     #Text Message output
-    send_text(latest_close,yesterday_close)
-
+    send_text(latest_close,yesterday_close) #Calls function to send alert if stock moves up or down within a day by more than 5%
 
 
