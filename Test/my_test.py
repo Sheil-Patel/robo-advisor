@@ -11,10 +11,10 @@ def test_get_response():
 
     parsed_response = get_response(symbol)
 
-    assert isinstance(parsed_response, dict)
-    assert "Meta Data" in parsed_response.keys()
-    assert "Time Series (Daily)" in parsed_response.keys()
-    assert parsed_response["Meta Data"]["2. Symbol"] == symbol
+    assert isinstance(parsed_response, dict)#Tests that the parsed_response is of the class "dict"
+    assert "Meta Data" in parsed_response.keys() #Tests that one of the "keys" in the parsed_response dictionary is "Meta Data"
+    assert "Time Series (Daily)" in parsed_response.keys()#Tests that one of the "keys" in the parsed_response dictionary is "Time Series (Daily)"
+    assert parsed_response["Meta Data"]["2. Symbol"] == symbol#Tests that "symbol" variable in the parsed response data has the same value as the one given as a parameter
 
 def test_transform_response():
     parsed_response = {
@@ -56,7 +56,7 @@ def test_transform_response():
         {"timestamp": "2019-06-06", "open": 102.48, "high": 102.60, "low": 101.90, "close": 102.49, "volume": 21122917},
     ]
 
-    assert transform_response(parsed_response) == transformed_response
+    assert transform_response(parsed_response) == transformed_response #Tests that the function "transform_response" changes the parameter "parsed_response" correctly
 def test_write_to_csv():
     example_rows = [
         {"timestamp": "2019-06-08", "open": "101.0924", "high": "101.9500", "low": "100.5400", "close": "101.6300", "volume": "22165128"},
@@ -80,7 +80,7 @@ def test_write_to_csv():
     
     # EXPECTATIONS
     
-    assert result == True 
+    assert result == True #If the function invokes correctly, it should return "True" 
     assert os.path.isfile(csv_file_path) == True #Checks if a .csv file was created at the location of the csv_file_path
     
     # TODO: consider also testing the file contents!

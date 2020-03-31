@@ -53,6 +53,16 @@ def write_to_csv(dates, csv_file_path):
 
     return True
 def get_response(symbol):
+    """
+    Takes stock ticker(as a string) up to 5 letters and returns the data as a dictionary of lists for the company stock through AlphaVantage API
+
+    Params:
+        symbol (string)
+
+    Examples:
+        get_response(MSFT) #>Returns Data for Microsoft Stock
+        get_response(GM) #>Returns Data for General Motors Stock
+    """
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
     
     response = requests.get(request_url)
@@ -76,6 +86,15 @@ def get_response(symbol):
             validation = False
     return parsed_response
 def transform_response(parsed_response):
+    """
+    Takes a parsed_response from the get_response() function and transforms it into a list, which is able to be used by the other functions
+
+    Params:
+        parsed_response(dictionary datatype)
+
+    Examples:
+        transform_response(parsed_response) #>Transfroms parsed_response dictionary in to a list
+    """
     # parsed_response should be a dictionary representing the original JSON response
     # it should have keys: "Meta Data" and "Time Series Daily"
     tsd = parsed_response["Time Series (Daily)"]
