@@ -57,7 +57,8 @@ def write_to_csv(dates, csv_file_path):
 
     return True
 def get_response(symbol):
-    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
+    
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
     validation = True
@@ -123,8 +124,12 @@ def get_recent_low(dates):
         low_prices.append(float(low_price))
     recent_low = min(low_prices)
     return recent_low
-def get_52_week_high(dates):
+def get_52_week_high(symbol):
     #52 week high
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
+    response = requests.get(request_url)
+    parsed_response = json.loads(response.text)
+
     weeks_high = []
     x = 0
     for datez in dates:
