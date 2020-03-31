@@ -9,15 +9,11 @@ from datetime import datetime
 from twilio.rest import Client
 
 
-#Import Data from API--------------------------
+#Import Data from Alphavantage API and import .env API keys--------------------------
     
 load_dotenv() #> loads contents of the .env file into the script's environment
 api_key = os.environ.get("ALPHAVANTAGE_API_KEY")
-TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "OOPS, please specify env var called 'TWILIO_ACCOUNT_SID'")
-TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "OOPS, please specify env var called 'TWILIO_AUTH_TOKEN'")
-SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
-RECIPIENT_SMS  = os.environ.get("RECIPIENT_SMS", "OOPS, please specify env var called 'RECIPIENT_SMS'")
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+
 
 def to_usd(my_price):
     """
@@ -129,11 +125,12 @@ def get_52_week_high(symbol):
     request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
-
-    weeks_high = []
+    tsd = parsed_response["Time Series (Daily)"]
+    dates = list(tsd.keys())
     x = 0
+    weeks_high = []
     for datez in dates:
-        week_high = datez["high"]
+        week_high = tsd[datez]["2. high"]
         weeks_high.append(float(week_high))
         x += 1
         if x == 360:
@@ -141,62 +138,28 @@ def get_52_week_high(symbol):
     recent_52high = max(weeks_high)
     return recent_52high
 def get_52_week_low(dates):
-    weeks_low = []
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
+    response = requests.get(request_url)
+    parsed_response = json.loads(response.text)
+    tsd = parsed_response["Time Series (Daily)"]
+    dates = list(tsd.keys())
     x = 0
+    weeks_low = []
     for datez in dates:
-        week_low = datez["low"]
+        week_low = tsd[datez]["3. low"]
         weeks_low.append(float(week_low))
         x += 1
         if x == 360:
             break
     recent_52low = min(weeks_low)
     return recent_52low
-
-if __name__ == "__main__":
-    #Current Time---------------
+def display_time():
     today = datetime.today()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     d3 = today.strftime("%m/%d/%y")
-    #------------------------------------
-    
-    #
-    # INFO INPUTS
-    #
-    
-    #Writing to CSV-----------------------------------------
-    
-   
-    csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv")
-    
-    
-    #Function Calls-------------------------------------------------------
-    symbol = input("Please input a stock ticker (e.g. MSFT)")
-    ticker = symbol.upper()
-    parsed_response = get_response(ticker)
-    dates = transform_response(parsed_response)
-    latest_close = get_latest_close(dates)
-    yesterday_close = get_yesterday_close(dates)
-    last_refreshed = get_last_refreshed(parsed_response)
-    recent_high = get_recent_high(dates)
-    recent_low = get_recent_low(dates)
-    recent_52high = get_52_week_high(dates)
-    recent_52low = get_52_week_low(dates)
-    write_to_csv(dates, csv_file_path)
-    #---------------------------------------------------
-    
-    #------------------------------
-    
- 
-    # ---------------------------------------
-    
-
-    # ----------------------------------------
-    
-    #Recent High Price(Maximum of all the high prices) &
-    #Recent Low Price(Minimum of all the low prices)-----
-    
-    #Reccomendation-----------------------------------
+    print("REQUEST OCCURED ON: " + d3 + " at " + current_time)
+def get_reccomendation(latest_close,recent_high,recent_low):
     if (float(latest_close) > (recent_high * 1.15)):
         reccomendation = "SELL!"
         reccomendation_reason = f"The latest closing price({to_usd(float(latest_close))}) is more than 15 percent above the recent high({to_usd(float(recent_high))}). This is an opportunistic time to SELL " 
@@ -206,44 +169,32 @@ if __name__ == "__main__":
     elif True:
         reccomendation = "HOLD!"
         reccomendation_reason = "Does not satisfy requirements for BUY or SELL which were, respectively, the latest closing price is more than 15 percent above the recent high and the latest closing price is less than 15 percent above the recent low. There is no clear indication of any clear upside to selling or buying, so the best course of action is to HOLD"
-    
-    
-    
-    #-------------------------------------------------
- 
-    #----------------------------------------------------------
-    
-    
-    
-    
-    #
-    # INFO OUTPUTS
-    #
-    
-    
-    
-    
-    #Program Outputs
+    print(f"RECOMMENDATION: {reccomendation}")
+    print(f"RECOMMENDATION REASON: {reccomendation_reason}")
+def receipt_header(symbol):
     print("-------------------------")
-    print(f"SELECTED SYMBOL: {symbol}")#
+    print(f"SELECTED SYMBOL: {symbol}")
     print("-------------------------")
     print("REQUESTING STOCK MARKET DATA...")
-    print("REQUEST OCCURED ON: " + d3 + " at " + current_time)#
+def receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52high,recent_52low):
     print("-------------------------")
-    print(f"LATEST DAY: {last_refreshed}")#
+    print(f"LATEST DAY: {last_refreshed}")
     print(f"LATEST CLOSE: {to_usd(float(latest_close))}")
     print(f"RECENT HIGH: {to_usd(float(recent_high))}")
     print(f"RECENT LOW:{to_usd(float(recent_low))}")
     print(f"52 WEEK HIGH:{to_usd(float(recent_52high))}")
     print(f"52 WEEK LOW:{to_usd(float(recent_52low))}")
     print("-------------------------")
-    print(f"RECOMMENDATION: {reccomendation}")
-    print(f"RECOMMENDATION REASON: {reccomendation_reason}")
+def receipt_footer():
     print("-------------------------")
     print("HAPPY INVESTING!")
     print("-------------------------")
-    
-    # Text Message output
+def send_text(latest_close,yesterday_close):
+    TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID", "OOPS, please specify env var called 'TWILIO_ACCOUNT_SID'")
+    TWILIO_AUTH_TOKEN  = os.environ.get("TWILIO_AUTH_TOKEN", "OOPS, please specify env var called 'TWILIO_AUTH_TOKEN'")
+    SENDER_SMS  = os.environ.get("SENDER_SMS", "OOPS, please specify env var called 'SENDER_SMS'")
+    RECIPIENT_SMS  = os.environ.get("RECIPIENT_SMS", "OOPS, please specify env var called 'RECIPIENT_SMS'")
+    client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
     sendit = False
     if (float(latest_close)/float(yesterday_close) >= 1.05):
         content = f"ALERT: The price of {symbol.upper()} has increased by more than 5% within the past day"
@@ -253,6 +204,32 @@ if __name__ == "__main__":
         sendit = True
     if sendit == True:
         message = client.messages.create(to=RECIPIENT_SMS, from_=SENDER_SMS, body=content)
+if __name__ == "__main__":
+    #Writing to CSV-----------------------------------------
+    csv_file_path = os.path.join(os.path.dirname(__file__), "..", "data", "prices.csv")
+    #Function Calls for calculations-------------------------------------------------------
+    symbol = input("Please input a stock ticker (e.g. MSFT)")
+    ticker = symbol.upper()
+    parsed_response = get_response(ticker)
+    dates = transform_response(parsed_response)
+    latest_close = get_latest_close(dates)
+    yesterday_close = get_yesterday_close(dates)
+    last_refreshed = get_last_refreshed(parsed_response)
+    recent_high = get_recent_high(dates)
+    recent_low = get_recent_low(dates)
+    recent_52high = get_52_week_high(symbol)
+    recent_52low = get_52_week_low(symbol)
+    write_to_csv(dates, csv_file_path)
+
+    #Program Outputs(Receipt)
+    receipt_header(symbol)
+    display_time()
+    receipt_body(last_refreshed,latest_close,recent_high, recent_low, recent_52high,recent_52low)
+    get_reccomendation(latest_close,recent_high,recent_low)
+    receipt_footer()
+
+    #Text Message output
+    send_text(latest_close,yesterday_close)
 
 
 
