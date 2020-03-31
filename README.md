@@ -65,3 +65,17 @@ From within the virtual environment, demonstrate your ability to run the Python 
 ```sh
 python app/robo_advisor.py
 ```
+## Testing Capabilities
+
+### Testing with Pytest Package
+After installing your package dependencies through requirments.txt, you are able to use the "pytest" package. By entering the command below, you are able to run the tests inputted in the file located at Test/my_test.py
+
+```sh
+pytest
+```
+
+### Automatic Testing with Travis-CI and Code Climate
+
+Travis-CI: Code is compatible with Travis-CI to run tests to see if fundamental program functions are working properly.
+
+Code Climate: Code can be used with Code Climate to check coding syntax and style
