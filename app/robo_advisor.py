@@ -57,7 +57,7 @@ def write_to_csv(dates, csv_file_path):
 
     return True
 def get_response(symbol):
-    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
+    request_url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&outputsize=full&apikey={api_key}"
     response = requests.get(request_url)
     parsed_response = json.loads(response.text)
     validation = True
@@ -178,7 +178,6 @@ if __name__ == "__main__":
     recent_52high = get_52_week_high(dates)
     recent_52low = get_52_week_low(dates)
     write_to_csv(dates, csv_file_path)
-    breakpoint()
     #---------------------------------------------------
     
     #------------------------------
