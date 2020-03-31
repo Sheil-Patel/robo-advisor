@@ -1,5 +1,5 @@
-from app.robo_advisor import to_usd, get_response, transform_response, write_to_csv
-import os, pytest
+from app.robo_advisor import to_usd, get_response, transform_response, write_to_csv, get_recent_high
+import os, pytest, csv
 
 def test_to_usd():
     assert to_usd(4.50) == "$4.50" #Adds the Dollaer
@@ -15,7 +15,6 @@ def test_get_response():
     assert "Meta Data" in parsed_response.keys() #Tests that one of the "keys" in the parsed_response dictionary is "Meta Data"
     assert "Time Series (Daily)" in parsed_response.keys()#Tests that one of the "keys" in the parsed_response dictionary is "Time Series (Daily)"
     assert parsed_response["Meta Data"]["2. Symbol"] == symbol#Tests that "symbol" variable in the parsed response data has the same value as the one given as a parameter
-
 def test_transform_response():
     parsed_response = {
         "Meta Data": {
@@ -83,4 +82,31 @@ def test_write_to_csv():
     assert result == True #If the function invokes correctly, it should return "True" 
     assert os.path.isfile(csv_file_path) == True #Checks if a .csv file was created at the location of the csv_file_path
     
-    # TODO: consider also testing the file contents!
+    csv_headers = ["timestamp", "open", "high", "low", "close", "volume"]
+    with open(csv_file_path, "r") as csv_file: # "r" means "open the file for reading"
+        reader = csv.DictReader(csv_file) # assuming your CSV has headers
+        for row in reader:
+            assert row["timestamp"] == "2019-06-08" #Checks to see if the value of first timestamp is correct
+            assert row["open"] == "101.0924" #Checks to see if the value of first open price is correct
+            break
+    with open(csv_file_path, "r") as csv_file:
+        reader = csv.DictReader(csv_file) 
+        x = 0 
+        for row in reader:
+            x +=1
+        row_number = len(example_rows)
+        assert x == row_number #Checks to see if the .csv file has all the rows
+def test_get_recent_high():
+    dates = [
+        {"timestamp": "2019-06-08", "open": "101.0924", "high": "101.9500", "low": "100.5400", "close": "101.6300", "volume": "22165128"},
+        {"timestamp": "2019-06-07", "open": "102.6500", "high": "102.6900", "low": "100.3800", "close": "100.8800", "volume": "28232197"},
+        {"timestamp": "2019-06-06", "open": "102.4800", "high": "102.6000", "low": "101.9000", "close": "102.4900", "volume": "21122917"},
+        {"timestamp": "2019-06-05", "open": "102.0000", "high": "102.3300", "low": "101.5300", "close": "102.1900", "volume": "23514402"},
+        {"timestamp": "2019-06-04", "open": "101.2600", "high": "101.8600", "low": "100.8510", "close": "101.6700", "volume": "27281623"},
+        {"timestamp": "2019-06-01", "open": '99.2798',  "high": "100.8600", "low": "99.1700",  "close": "100.7900", "volume": "28655624"}
+        ]
+    recent_high = get_recent_high(dates)
+
+    assert recent_high == 102.6900 #Checks to see if recent_high function operating properly
+    
+    
